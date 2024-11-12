@@ -70,6 +70,10 @@ pip install "apache-airflow==2.7.2" --constraint "https://raw.githubusercontent.
 Replace `2.7.2` with the latest Airflow version and adjust `constraints-3.9.txt` according to your Python version (e.g., `3.8`, `3.10`).
 
 ```bash
+pip install 'apache-airflow[postgres]'
+```
+
+```bash
 pip install -r requirements.txt
 ```
 
