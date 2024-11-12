@@ -1,4 +1,3 @@
-
 # Apache Airflow Practice
 
 Welcome to the Apache Airflow Practice repository! 🚀
@@ -17,166 +16,95 @@ Ensure you have the following installed on your machine:
 
 Follow these steps to set up Apache Airflow on your macOS machine:
 
-### 1. Check Python Installation
+# Setting Up Apache Airflow with Docker Compose
 
-Verify that Python 3 is installed:
+This guide helps you set up and run Apache Airflow using Docker Compose on macOS.
 
-```bash
-python3 --version
-```
+## 1. Install Docker and Docker Compose
 
-If you don't have Python 3 or it's outdated, proceed to the next step.
+Ensure that both Docker and Docker Compose are installed on your system.
 
-### 2. Install Python via Homebrew
-
-Homebrew is a package manager that simplifies software installation on macOS. If you don't have Homebrew installed, run:
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-Now, install Python:
-
-```bash
-brew install python
-```
-
-Verify the Python installation:
-
-```bash
-python3 --version
-```
-
-### 3. Upgrade `pip`
-
-Ensure you have the latest version of `pip`:
-
-```bash
-python3 -m pip install --upgrade pip
-```
-
-Check the `pip` version:
-
-```bash
-pip3 --version
-```
-
-### 4. Set Up a Python Virtual Environment (Optional but Recommended)
-
-Create and activate a virtual environment for this project to keep dependencies isolated:
-
-```bash
-python3 -m venv airflow_venv
-source airflow_venv/bin/activate
-```
-
-To deactivate the virtual environment, use:
-
-```bash
-deactivate
-```
-
-### 5. Install Apache Airflow
-
-Use `pip` to install Apache Airflow with the constraints file to handle dependencies:
-
-```bash
-pip install "apache-airflow==2.7.2" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.2/constraints-3.9.txt"
-```
-
-Replace `2.7.2` with the latest Airflow version and adjust `constraints-3.9.txt` according to your Python version (e.g., `3.8`, `3.10`).
-
-```bash
-pip install -r requirements.txt
-```
-
-### 6. Initialize the Airflow Database
-
-Airflow uses a metadata database to keep track of DAGs and task states. Initialize it with:
-
-```bash
-airflow db init
-```
-
-### 7. Create an Admin User
-
-Set up an admin user for accessing the Airflow UI:
-
-```bash
-airflow users create \
-    --username admin \
-    --firstname John \
-    --lastname Doe \
-    --role Admin \
-    --email admin@example.com
-```
-
-Replace the details with your preferred credentials.
-
-### 8. Start Airflow Services
-
-Open two terminal windows or use `tmux`/`screen` to run the following services:
-
-- **Start the Web Server** (accessible at [http://localhost:8080](http://localhost:8080)):
+- **Docker**: Download and install Docker Desktop from the [official Docker website](https://www.docker.com/products/docker-desktop).
+- **Docker Compose**: Docker Desktop includes Docker Compose. Verify the installation by running:
 
   ```bash
-  airflow webserver
+  docker-compose --version
   ```
 
-- **Start the Scheduler**:
+## 2. Clone the Repository
 
-  ```bash
-  airflow scheduler
-  ```
-
-### 9. Verify the Setup
-
-Visit [http://localhost:8080](http://localhost:8080) in your browser and log in using the admin credentials you created earlier.
-
-## 🏗️ Project Structure
+Clone your Airflow practice repository to your local machine:
 
 ```bash
-.
-├── dags/                  # Folder containing your Airflow DAGs
-├── plugins/               # Folder for custom plugins
-├── airflow.cfg            # Airflow configuration file
-├── README.md              # Project documentation (this file)
-└── requirements.txt       # Additional Python dependencies (if any)
+git clone https://github.com/jhon0010/airflow-practice
+cd airflow-practice
 ```
 
-## 📚 Basic Airflow Concepts
+## 3. Set Up the Environment
 
-- **DAG**: A Directed Acyclic Graph (DAG) is a collection of tasks with defined dependencies.
-- **Operator**: Defines a single task in a DAG (e.g., BashOperator, PythonOperator).
-- **Task**: A unit of work within a DAG.
-- **Scheduler**: Triggers task instances based on the defined schedule.
-- **Web Server**: Provides the Airflow UI for monitoring DAGs and tasks.
+Create necessary directories and set environment variables:
 
+```bash
+mkdir -p ./dags ./logs ./plugins
+echo -e "AIRFLOW_UID=$(id -u)" > .env
+```
 
-## 🛠️ Troubleshooting
+This setup ensures proper file permissions between your host and Docker containers.
 
-- **Database Errors**: If you encounter database issues, reset the database with:
+## 4. Initialize the Airflow Database
 
-  ```bash
-  airflow db reset
-  ```
+Run the following command to set up the Airflow metadata database:
 
-- **Permission Errors**: If you get permission errors, try running the commands with `sudo`.
+```bash
+docker-compose up airflow-init
+```
 
-- **Environment Variable Issues**: Set the `AIRFLOW_HOME` explicitly if needed:
+After initialization, you should see a message indicating that the database setup is complete.
 
-  ```bash
-  export AIRFLOW_HOME=~/airflow
-  ```
+## 5. Start Airflow Services
 
-## 📄 License
+Launch the Airflow services (web server, scheduler, etc.) using:
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```bash
+docker-compose up
+```
 
-## 📧 Contact
+To run the services in the background, add the `-d` flag:
 
-If you have any questions, feel free to reach out:
+```bash
+docker-compose up -d
+```
 
-- **GitHub**: [jhon0010](https://github.com/jhon0010)
+## 6. Access the Airflow Web Interface
 
-Happy Airflow-ing! 🌬️
+Open your browser and navigate to [http://localhost:8080](http://localhost:8080).
+
+Log in using the default credentials:
+
+- **Username**: `airflow`
+- **Password**: `airflow`
+
+## 7. Shut Down Airflow Services
+
+To stop the services, run:
+
+```bash
+docker-compose down
+```
+
+## 8. Run backfill command inside docker 
+
+Run the followinf command to run the backfill command inside the docker container
+
+```bash
+docker exec  -it {docker_pid} bash 
+```
+```bash
+airflow dags backfill -s 2021-08-01 -e 2021-08-31 {dag_id}
+```
+
+## Additional Information
+
+For more detailed information, refer to the [official Airflow documentation on running Airflow in Docker](https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html).
+
+By following these steps, you can set up and run Apache Airflow using Docker Compose, facilitating a consistent and isolated environment for your workflows.
