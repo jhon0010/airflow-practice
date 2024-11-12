@@ -9,11 +9,17 @@ default_args = {
     "retry_delay": timedelta(minutes=1),
 }
 
-def greet(name, age):
-    print(f"Hello World from Python Function! {name}, {age}")
+"""
+ti = task instance
+"""
+def greet(age, ti):
+    print(f"Hello World from Python Function! {ti.xcom_pull(task_ids='get_name')}, {age}")
+
+def get_name():
+    return "Jhon"
 
 with DAG(
-    dag_id="first_python_dag_v0",
+    dag_id="first_python_dag_v2",
     description="This is my first Python DAG",
     default_args=default_args,
     start_date=datetime(2024, 11, 10),
@@ -24,14 +30,14 @@ with DAG(
         python_callable=lambda: print("Hello World from Python!")
     )
     task_2 = PythonOperator(
-        task_id="task_2", 
-        python_callable=lambda: print("Im a second task :: Hello World from Python!")
+        task_id="get_name", 
+        python_callable=get_name
     )
     task_3 = PythonOperator(
         task_id="task_3", 
         python_callable=greet,
-        op_kwargs={"name": "Jhon", "age": 27} # pass the arguments to the function
+        op_kwargs={"age": 27} # pass the arguments to the function
     )
 
-    # method 3 to set the order of the tasks
-    task_1 >> [task_2, task_3]
+    # 
+    task_2 >> [task_1,task_3]
