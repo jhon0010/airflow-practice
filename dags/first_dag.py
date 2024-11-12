@@ -10,10 +10,10 @@ default_args = {
 }
 
 with DAG(
-    dag_id="first_dag_v3",
+    dag_id="first_dag_v4",
     description="This is my first DAG",
     default_args=default_args,
-    start_date=datetime(2021, 1, 1),
+    start_date=datetime(2024, 11, 10),
     schedule_interval="@hourly",
 ) as dag:
     task_1 = BashOperator(
@@ -39,6 +39,6 @@ with DAG(
     task_1 >> task_2
     task_1 >> task_3
     """
-    
+
     # method 3 to set the order of the tasks
     task_1 >> [task_2, task_3]
